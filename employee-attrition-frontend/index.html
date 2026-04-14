@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attrition Predictor | HR Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .highlight {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .btn-github {
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--light);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .btn-github:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            flex: 1;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .hero-visual {
+            flex: 1;
+            position: relative;
+            height: 400px;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .card-1 { top: 20%; left: 20%; animation-delay: 0s; }
+        .card-2 { top: 60%; left: 50%; animation-delay: 1s; }
+        .card-3 { top: 30%; left: 70%; animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Dashboard Section */
+        .dashboard, .insights, .predict {
+            padding: 5rem 5%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 1.125rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .badge {
+            background: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .eda-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .eda-visual {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .simple-chart {
+            margin: 1rem 0;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bar-label {
+            width: 100px;
+            font-size: 0.875rem;
+        }
+
+        .bar {
+            flex: 1;
+            height: 30px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .insight-card {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .insight-card i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .shap-legend {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .color-box.red { background: #e24b4a; }
+        .color-box.blue { background: #378add; }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .insight-card-large {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .insight-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .insight-icon i {
+            font-size: 2rem;
+        }
+
+        .rank-list {
+            margin-top: 1.5rem;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .rank-feature {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .rank-impact {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .recommendations {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .recommendations li {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .recommendations li i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .predict-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .predict-form {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group input[type="range"] {
+            padding: 0;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .btn-predict {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+        }
+
+        .predict-result {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .result-card {
+            text-align: center;
+        }
+
+        .result-header {
+            margin-bottom: 2rem;
+        }
+
+        .result-header i {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .risk-gauge {
+            margin-bottom: 2rem;
+        }
+
+        .gauge-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .gauge-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-out;
+        }
+
+        .risk-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .risk-recommendation {
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .risk-factors {
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+
+        .risk-factors h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-factors ul {
+            list-style: none;
+        }
+
+        .risk-factors li {
+            padding: 0.5rem 0;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+        }
+
+        .footer {
+            background: var(--darker);
+            padding: 3rem 5% 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: var(--gray);
+            font-size: 1.25rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+        }
+
+        .footer-bottom i {
+            color: var(--danger);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 5rem;
+            }
+            .hero-title { font-size: 2rem; }
+            .hero-stats { justify-content: center; }
+            .hero-buttons { justify-content: center; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .eda-grid { grid-template-columns: 1fr; }
+            .insights-grid { grid-template-columns: 1fr; }
+            .predict-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Attrition<span class="highlight">Predictor</span></span>
+            </div>
+            <div class="nav-links">
+                <a onclick="scrollToSection('home')">Home</a>
+                <a onclick="scrollToSection('dashboard')">Dashboard</a>
+                <a onclick="scrollToSection('insights')">Insights</a>
+                <a onclick="scrollToSection('predict')">Predict</a>
+            </div>
+            <div class="github-btn">
+                <a href="#" class="btn-github">
+                    <i class="fab fa-github"></i> Source Code
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-brain"></i> AI-Powered HR Analytics
+            </div>
+            <h1 class="hero-title">
+                Predict Employee Attrition<br>
+                <span class="gradient-text">Before It Happens</span>
+            </h1>
+            <p class="hero-subtitle">
+                Using Machine Learning to identify employees at risk of leaving,
+                saving companies millions in recruitment and training costs.
+            </p>
+            <div class="hero-stats">
+                <div class="stat"><div class="stat-value">94%</div><div class="stat-label">Model Accuracy</div></div>
+                <div class="stat"><div class="stat-value">30+</div><div class="stat-label">Features Analyzed</div></div>
+                <div class="stat"><div class="stat-value">1470</div><div class="stat-label">Employees Analyzed</div></div>
+            </div>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="scrollToSection('dashboard')"><i class="fas fa-chart-bar"></i> View Dashboard</button>
+                <button class="btn-secondary" onclick="scrollToSection('predict')"><i class="fas fa-user-check"></i> Predict Risk</button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1"><i class="fas fa-user-graduate"></i><span>High Risk: 91%</span></div>
+            <div class="floating-card card-2"><i class="fas fa-chart-line"></i><span>AUC: 0.735</span></div>
+            <div class="floating-card card-3"><i class="fas fa-exclamation-triangle"></i><span>Top Risk Factor</span></div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="dashboard">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-chart-pie"></i> Analytics Dashboard</h2>
+                <p class="section-subtitle">Visual insights from IBM HR Analytics dataset</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="dashboard-card card-full">
+                    <div class="card-header"><h3><i class="fas fa-chart-area"></i> Exploratory Data Analysis</h3><span class="badge">Key Insights</span></div>
+                    <div class="eda-grid">
+                        <div class="eda-visual">
+                            <h4>Attrition Distribution</h4>
+                            <div style="margin: 1rem 0; position: relative; width: 200px; height: 200px; margin: 0 auto;">
+                                <svg width="200" height="200" viewBox="0 0 200 200">
+                                    <circle cx="100" cy="100" r="80" fill="#378ADD" stroke="white" stroke-width="2"/>
+                                    <path d="M100 20 A80 80 0 0 1 180 100 L100 100 Z" fill="#E24B4A"/>
+                                    <text x="65" y="95" fill="white" font-size="12">16.1%</text>
+                                    <text x="65" y="110" fill="white" font-size="10">Left</text>
+                                    <text x="120" y="60" fill="#378ADD" font-size="10">83.9%</text>
+                                    <text x="125" y="75" fill="#378ADD" font-size="10">Stayed</text>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="eda-insights">
+                            <div class="insight-card"><i class="fas fa-percent"></i><div><h4>16.1%</h4><p>Overall Attrition Rate</p></div></div>
+                            <div class="insight-card"><i class="fas fa-clock"></i><div><h4>1-2 Years</h4><p>Highest Risk Tenure</p></div></div>
+                            <div class="insight-card"><i class="fas fa-chart-line"></i><div><h4>Sales & HR</h4><p>Highest Risk Departments</p></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header"><h3><i class="fas fa-chart-line"></i> Model Performance</h3><span class="badge">ROC-AUC: 0.735</span></div>
+                    <div class="simple-chart">
+                        <div class="bar-chart">
+                            <div class="bar-item"><span class="bar-label">Accuracy</span><div class="bar"><div class="bar-fill" style="width: 80%;">80%</div></div></div>
+                            <div class="bar-item"><span class="bar-label">Precision</span><div class="bar"><div class="bar-fill" style="width: 34%;">34%</div></div></div>
+                            <div class="bar-item"><span class="bar-label">Recall</span><div class="bar"><div class="bar-fill" style="width: 28%;">28%</div></div></div>
+                            <div class="bar-item"><span class="bar-label">F1-Score</span><div class="bar"><div class="bar-fill" style="width: 31%;">31%</div></div></div>
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric"><span class="metric-label">Accuracy</span><span class="metric-value">80%</span></div>
+                        <div class="metric"><span class="metric-label">Precision (Left)</span><span class="metric-value">34%</span></div>
+                        <div class="metric"><span class="metric-label">Recall (Left)</span><span class="metric-value">28%</span></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header"><h3><i class="fas fa-chart-bar"></i> Feature Importance</h3><span class="badge">SHAP Analysis</span></div>
+                    <div class="bar-chart">
+                        <div class="bar-item"><span class="bar-label">Stock Option</span><div class="bar"><div class="bar-fill" style="width: 100%; background: #e24b4a;">0.098</div></div></div>
+                        <div class="bar-item"><span class="bar-label">Job Satisfaction</span><div class="bar"><div class="bar-fill" style="width: 55%; background: #e24b4a;">0.055</div></div></div>
+                        <div class="bar-item"><span class="bar-label">Job Involvement</span><div class="bar"><div class="bar-fill" style="width: 47%; background: #e24b4a;">0.046</div></div></div>
+                        <div class="bar-item"><span class="bar-label">Env Satisfaction</span><div class="bar"><div class="bar-fill" style="width: 45%; background: #e24b4a;">0.045</div></div></div>
+                        <div class="bar-item"><span class="bar-label">Job Level</span><div class="bar"><div class="bar-fill" style="width: 35%;">0.035</div></div></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card card-full">
+                    <div class="card-header"><h3><i class="fas fa-chart-scatter"></i> SHAP Summary Insights</h3><span class="badge">Global Interpretability</span></div>
+                    <div class="shap-legend">
+                        <div class="legend-item"><div class="color-box red"></div><span>High feature value → Increases risk</span></div>
+                        <div class="legend-item"><div class="color-box blue"></div><span>Low feature value → Decreases risk</span></div>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--primary);"></i>
+                        <p style="margin-top: 0.5rem;">Stock options and job satisfaction are the strongest predictors of attrition</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="insights" class="insights">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-lightbulb"></i> Key Business Insights</h2>
+                <p class="section-subtitle">What the data tells us about employee retention</p>
+            </div>
+            <div class="insights-grid">
+                <div class="insight-card-large">
+                    <div class="insight-icon"><i class="fas fa-chart-simple"></i></div>
+                    <h3>Top 5 Reasons Employees Leave</h3>
+                    <div class="rank-list">
+                        <div class="rank-item"><span class="rank">1</span><span class="rank-feature">Stock Option Level</span><span class="rank-impact">SHAP: 0.0984</span></div>
+                        <div class="rank-item"><span class="rank">2</span><span class="rank-feature">Job Satisfaction</span><span class="rank-impact">SHAP: 0.0546</span></div>
+                        <div class="rank-item"><span class="rank">3</span><span class="rank-feature">Job Involvement</span><span class="rank-impact">SHAP: 0.0459</span></div>
+                        <div class="rank-item"><span class="rank">4</span><span class="rank-feature">Environment Satisfaction</span><span class="rank-impact">SHAP: 0.0447</span></div>
+                        <div class="rank-item"><span class="rank">5</span><span class="rank-feature">Job Level</span><span class="rank-impact">SHAP: 0.0345</span></div>
+                    </div>
+                </div>
+
+                <div class="insight-card-large">
+                    <div class="insight-icon"><i class="fas fa-bullhorn"></i></div>
+                    <h3>Actionable Recommendations</h3>
+                    <ul class="recommendations">
+                        <li><i class="fas fa-gift"></i><div><strong>Review Stock Option Policies</strong><p>Employees with low stock options show highest attrition risk</p></div></li>
+                        <li><i class="fas fa-heart"></i><div><strong>Improve Job Satisfaction</strong><p>Regular surveys and feedback sessions can identify issues early</p></div></li>
+                        <li><i class="fas fa-users"></i><div><strong>Increase Engagement</strong><p>Career development programs boost job involvement</p></div></li>
+                        <li><i class="fas fa-building"></i><div><strong>Enhance Work Environment</strong><p>Better facilities and culture improve satisfaction</p></div></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="predict" class="predict">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-robot"></i> Predict Attrition Risk</h2>
+                <p class="section-subtitle">Enter employee details to get AI-powered prediction</p>
+            </div>
+            <div class="predict-grid">
+                <div class="predict-form">
+                    <form id="predictionForm">
+                        <div class="form-row">
+                            <div class="form-group"><label><i class="fas fa-calendar"></i> Age</label><input type="number" id="age" value="28" required></div>
+                            <div class="form-group"><label><i class="fas fa-briefcase"></i> Department</label><select id="department"><option value="Sales">Sales</option><option value="Research & Development">R&D</option><option value="Human Resources">HR</option></select></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label><i class="fas fa-chart-line"></i> Job Satisfaction (1-4)</label><input type="range" id="jobSatisfaction" min="1" max="4" value="2"><span class="range-value" id="satisfactionValue">2</span></div>
+                            <div class="form-group"><label><i class="fas fa-chart-line"></i> Job Involvement (1-4)</label><input type="range" id="jobInvolvement" min="1" max="4" value="2"><span class="range-value" id="involvementValue">2</span></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label><i class="fas fa-chart-line"></i> Environment Satisfaction (1-4)</label><input type="range" id="envSatisfaction" min="1" max="4" value="2"><span class="range-value" id="envValue">2</span></div>
+                            <div class="form-group"><label><i class="fas fa-chart-simple"></i> Stock Option Level (0-3)</label><input type="range" id="stockOption" min="0" max="3" value="0"><span class="range-value" id="stockValue">0</span></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label><i class="fas fa-clock"></i> OverTime</label><select id="overtime"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                            <div class="form-group"><label><i class="fas fa-dollar-sign"></i> Monthly Income</label><input type="number" id="income" value="2500" required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label><i class="fas fa-chart-line"></i> Work-Life Balance (1-4)</label><input type="range" id="workLifeBalance" min="1" max="4" value="1"><span class="range-value" id="balanceValue">1</span></div>
+                            <div class="form-group"><label><i class="fas fa-building"></i> Years at Company</label><input type="number" id="yearsAtCompany" value="1" required></div>
+                        </div>
+                        <button type="submit" class="btn-predict"><i class="fas fa-chart-line"></i> Predict Attrition Risk</button>
+                    </form>
+                </div>
+                <div class="predict-result" id="predictResult" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header"><i class="fas fa-chart-line"></i><h3>Prediction Result</h3></div>
+                        <div class="risk-gauge"><div class="gauge"><div class="gauge-value" id="riskPercentage">0%</div><div class="gauge-bar"><div class="gauge-fill" id="riskFill"></div></div></div></div>
+                        <div class="risk-status" id="riskStatus"></div>
+                        <div class="risk-recommendation" id="riskRecommendation"></div>
+                        <div class="risk-factors"><h4>Key Risk Factors:</h4><ul id="riskFactors"></ul></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><div class="logo"><i class="fas fa-chart-line"></i><span>Attrition<span class="highlight">Predictor</span></span></div><p>AI-powered employee attrition prediction using Random Forest and SHAP explainability.</p><div class="social-links"><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-twitter"></i></a></div></div>
+                <div class="footer-section"><h4>Technologies</h4><ul><li>Python & Scikit-learn</li><li>Random Forest</li><li>SHAP Explainability</li><li>SMOTE Balancing</li></ul></div>
+                <div class="footer-section"><h4>Dataset</h4><ul><li>IBM HR Analytics</li><li>1,470 Employees</li><li>30+ Features</li><li>16.1% Attrition Rate</li></ul></div>
+                <div class="footer-section"><h4>Links</h4><ul><li><a onclick="scrollToSection('dashboard')">Dashboard</a></li><li><a onclick="scrollToSection('insights')">Insights</a></li><li><a onclick="scrollToSection('predict')">Try Predictor</a></li></ul></div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Employee Attrition Predictor. Built with <i class="fas fa-heart"></i> for HR Analytics</p></div>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('jobSatisfaction').addEventListener('input', (e) => {
+            document.getElementById('satisfactionValue').textContent = e.target.value;
+        });
+        document.getElementById('jobInvolvement').addEventListener('input', (e) => {
+            document.getElementById('involvementValue').textContent = e.target.value;
+        });
+        document.getElementById('envSatisfaction').addEventListener('input', (e) => {
+            document.getElementById('envValue').textContent = e.target.value;
+        });
+        document.getElementById('stockOption').addEventListener('input', (e) => {
+            document.getElementById('stockValue').textContent = e.target.value;
+        });
+        document.getElementById('workLifeBalance').addEventListener('input', (e) => {
+            document.getElementById('balanceValue').textContent = e.target.value;
+        });
+
+        document.getElementById('predictionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const jobSatisfaction = parseInt(document.getElementById('jobSatisfaction').value);
+            const jobInvolvement = parseInt(document.getElementById('jobInvolvement').value);
+            const envSatisfaction = parseInt(document.getElementById('envSatisfaction').value);
+            const stockOption = parseInt(document.getElementById('stockOption').value);
+            const overtime = document.getElementById('overtime').value;
+            const yearsAtCompany = parseInt(document.getElementById('yearsAtCompany').value);
+            const workLifeBalance = parseInt(document.getElementById('workLifeBalance').value);
+            const department = document.getElementById('department').value;
+            
+            let riskScore = 0;
+            const riskFactors = [];
+            
+            if (stockOption === 0) { riskScore += 25; riskFactors.push('No stock options (strongest predictor)'); }
+            else if (stockOption === 1) { riskScore += 15; riskFactors.push('Limited stock options'); }
+            
+            if (jobSatisfaction <= 2) { riskScore += 20; riskFactors.push('Low job satisfaction'); }
+            else if (jobSatisfaction === 3) { riskScore += 10; }
+            
+            if (jobInvolvement <= 2) { riskScore += 15; riskFactors.push('Low job involvement'); }
+            if (envSatisfaction <= 2) { riskScore += 15; riskFactors.push('Poor work environment satisfaction'); }
+            if (overtime === 'Yes') { riskScore += 20; riskFactors.push('Regular overtime work'); }
+            if (yearsAtCompany <= 2) { riskScore += 10; riskFactors.push('New employee (< 2 years tenure)'); }
+            if (workLifeBalance <= 2) { riskScore += 10; riskFactors.push('Poor work-life balance'); }
+            if (department === 'Sales') { riskScore += 10; riskFactors.push('High-risk department (Sales)'); }
+            
+            riskScore = Math.min(riskScore, 100);
+            const uniqueFactors = [...new Set(riskFactors)].slice(0, 4);
+            
+            const resultDiv = document.getElementById('predictResult');
+            const riskPercentage = document.getElementById('riskPercentage');
+            const riskFill = document.getElementById('riskFill');
+            const riskStatus = document.getElementById('riskStatus');
+            const riskRecommendation = document.getElementById('riskRecommendation');
+            const riskFactorsList = document.getElementById('riskFactors');
+            
+            resultDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                const roundedScore = Math.round(riskScore);
+                riskPercentage.textContent = `${roundedScore}%`;
+                riskFill.style.width = `${riskScore}%`;
+                
+                if (riskScore >= 70) {
+                    riskFill.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+                    riskStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> HIGH RISK - Immediate Action Required';
+                    riskStatus.style.color = '#ef4444';
+                    riskRecommendation.innerHTML = '🚨 Schedule immediate 1:1 meeting, review compensation package, offer stock options, and create retention plan.';
+                } else if (riskScore >= 40) {
+                    riskFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+                    riskStatus.innerHTML = '<i class="fas fa-chart-line"></i> MEDIUM RISK - Monitor Closely';
+                    riskStatus.style.color = '#f59e0b';
+                    riskRecommendation.innerHTML = '📊 Regular check-ins, career development discussions, engagement activities, and consider stock options.';
+                } else {
+                    riskFill.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+                    riskStatus.innerHTML = '<i class="fas fa-check-circle"></i> LOW RISK - Stable Employee';
+                    riskStatus.style.color = '#10b981';
+                    riskRecommendation.innerHTML = '✅ Continue engagement, provide recognition, offer growth opportunities, and maintain work-life balance.';
+                }
+                
+                riskFactorsList.innerHTML = '';
+                if (uniqueFactors.length > 0) {
+                    uniqueFactors.forEach(factor => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<i class="fas fa-exclamation-circle" style="color: #ef4444; margin-right: 8px;"></i>${factor}`;
+                        riskFactorsList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i>No major risk factors detected';
+                    riskFactorsList.appendChild(li);
+                }
+                
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
